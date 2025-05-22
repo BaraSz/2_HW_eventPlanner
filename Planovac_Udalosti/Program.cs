@@ -1,7 +1,4 @@
-﻿using System.Formats.Asn1;
-using System.Runtime.CompilerServices;
-
-namespace Planovac_Udalosti;
+﻿namespace Planovac_Udalosti;
 
 class Program
 {
@@ -9,6 +6,7 @@ class Program
     {
         Console.WriteLine("Hello!");
         List<Event> events = new List<Event>();
+        Dictionary<DateTime, int> dict = new Dictionary<DateTime, int>();
 
         while (true)
         {
@@ -20,7 +18,7 @@ class Program
 
             string userChoice = Console.ReadLine();
 
-            if (userChoice == "1")
+            if (userChoice == "1") // nitpick: pomocna metoda
             {
                 Console.WriteLine("Enter a new event name and date in the format: [event name];[YYYY-MM-DD].");
                 string newEvent = Console.ReadLine();
@@ -35,15 +33,9 @@ class Program
 
                         try
                         {
-                            string[] dateOfEventSplit = dateOfEvent.Split("-", StringSplitOptions.RemoveEmptyEntries);
-
-                            int yearOfEvent = int.Parse(dateOfEventSplit[0]);
-                            int monthOfEvent = int.Parse(dateOfEventSplit[1]);
-                            int dayOfEvent = int.Parse(dateOfEventSplit[2]);
-
-                            DateTime parsedDate = new DateTime(yearOfEvent, monthOfEvent, dayOfEvent);
+                            DateTime parsedDate = DateTime.ParseExact(dateOfEvent, "yyyy-MM-dd", null);
                             Event userEvent = new Event(nameOfEvent, parsedDate);
-                            events.Add(userEvent);
+                            AddEvent(userEvent, dict, events);
                             break;
                         }
                         catch (FormatException)
@@ -74,21 +66,6 @@ class Program
 
             else if (userChoice == "3")
             {
-                Dictionary<DateTime, int> dict = new Dictionary<DateTime, int> { };
-
-                foreach (Event eventItem in events)
-                {
-                    if (dict.ContainsKey(eventItem.DateOfEvent))
-                    {
-                        dict[eventItem.DateOfEvent]++;
-                    }
-                    else
-                    {
-                        dict[eventItem.DateOfEvent] = 1;
-                    }
-
-                }
-
                 foreach (var eventPair in dict)
                 {
                     if (eventPair.Value > 1)
@@ -107,13 +84,24 @@ class Program
                 Console.WriteLine("The program is closing.");
                 return;
             }
-            /*--------nejsem si jista jak jinak to napsat aby se mi pri opakovanem spatnem vstupu nezobrazovalo Choose an option 1-4 a hned za tim aby mi nevyjela zakladni "nabidka"----*/
             else
             {
-                /* Console.WriteLine("Choose an option 1-4");
-                userChoice = Console.ReadLine(); */
-                continue;
+                Console.WriteLine("Invalid option, choose again.");
             }
+        }
+    }
+
+    static void AddEvent(Event eventItem, Dictionary<DateTime, int> dict, List<Event> events)
+    {
+        events.Add(eventItem);
+
+        if (dict.ContainsKey(eventItem.DateOfEvent))
+        {
+            dict[eventItem.DateOfEvent]++;
+        }
+        else
+        {
+            dict[eventItem.DateOfEvent] = 1;
         }
     }
 }
